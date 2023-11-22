@@ -8,6 +8,8 @@ import NProgress from "nprogress"
 import "nprogress/nprogress.css"
 import { onMounted } from "vue"
 import { onBeforeMount } from "vue"
+import { imagesPreloader } from "./utils/imgPreloader"
+import { images } from "./assets/images"
 
 window.isNotch = window.screen.height / window.screen.width > 1.8
 
@@ -19,8 +21,9 @@ NProgress.configure({
   minimum: 0.3,
   parent: "body",
 })
-onBeforeMount(() => {
+onBeforeMount(async () => {
   NProgress.start()
+  await imagesPreloader(images)
 })
 onMounted(async () => {
   NProgress.done()

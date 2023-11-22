@@ -1,0 +1,16 @@
+{
+  "origins": [
+    {
+      "name": "swagger",
+      "originUrl": "http://127.0.0.1:5500/swagger.json"
+    }
+  ],
+  "templatePath": "./pontTemplate",
+  "outDir": "./services",
+  "originType": "SwaggerV3",
+  "usingMultipleOrigins": true,
+  "mocks": {
+    "enable": false
+  },
+  "templateType": "fetch"
+}

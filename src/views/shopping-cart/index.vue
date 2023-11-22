@@ -1,7 +1,49 @@
 <script lang="ts" setup>
-import { computed } from "vue"
-import {} from "vue"
+import { getPaymentMethodApi, paymentRequestApi } from "@/api"
+import { onBeforeMount, onMounted } from "vue"
+import { computed, ref } from "vue"
+import { Image, Radio, RadioGroup, showToast } from "vant"
+import { images } from "@/assets/images"
+import { useRoute, useRouter } from "vue-router"
 
+const route = useRoute()
+const router = useRouter()
+const formRef = ref<HTMLFormElement>()
+const getPaymentMethodImage = (method?: string) => {
+  switch (method) {
+    case "credit_card":
+      return images.visamasteraeLogo
+    case "wechat_alipay":
+      return images.aliwechatLogo
+    default:
+      return images.offlineLogo
+  }
+}
+
+const selectPaymentIndex = ref<number>()
+const paymentMethods = ref<defs.swagger.paymentMethods[]>([])
+const getPaymentMethod = async () => {
+  const data = await getPaymentMethodApi()
+  paymentMethods.value = data.payment_methods || []
+}
+
+const payParams = ref<{
+  provider: string
+  data: {
+    amount: string
+    locale: string
+  }
+}>({
+  provider: "",
+  data: {
+    amount: "",
+    locale: "",
+  },
+})
+
+onBeforeMount(async () => {
+  await getPaymentMethod()
+})
 const items = [
   {
     title: "item",
@@ -33,20 +75,47 @@ const total = computed(() => {
   }, 0)
 })
 
-const payMode = [
-  {
-    title: "card like",
-  },
-  {
-    title: "card like",
-  },
-  {
-    title: "card like",
-  },
-  {
-    title: "card like",
-  },
-]
+const payment_form = ref<defs.swagger.paymentRes>({
+  access_key: "",
+  profile_id: "",
+  transaction_uuid: "",
+  signed_field_names: "",
+  unsigned_field_names: "",
+  signed_date_time: "",
+  locale: "",
+})
+
+const onPayment = async () => {
+  if (selectPaymentIndex.value === void 0) return showToast({ message: "請選擇付款方式" })
+  payParams.value = {
+    provider: "xxxxxxx",
+    data: {
+      amount: total.value.toString(),
+      locale: "en",
+    },
+  }
+  const result = await paymentRequestApi(payParams.value)
+  payment_form.value = result
+  // formRef.value?.submit()
+  router.push({
+    name: "PaymentStatus",
+    query: {
+      paymentId: "xxxxxxx",
+    },
+  })
+}
+
+const toBack = () => {
+  router.push({
+    name: "Building",
+    params: {
+      id: route.query.buildingId as string,
+    },
+    query: {
+      unitId: route.query.unitId as string,
+    },
+  })
+}
 </script>
 
 <template>
@@ -82,22 +151,34 @@ const payMode = [
       </div>
       <div class="cell mode">
         <div class="title">付款方法</div>
-        <div class="mode-box">
-          <template v-for="item in payMode">
-            <div class="mode-box-item">
-              <div>{{ item.title }}</div>
-              <div>checkbox</div>
+        <RadioGroup v-model:model-value="selectPaymentIndex" class="mode-box">
+          <template v-for="(item, index) in paymentMethods">
+            <div class="mode-box-item" @click="selectPaymentIndex = index">
+              <div>
+                <Image width="50" height="50" :src="getPaymentMethodImage(item.method)"></Image>
+              </div>
+              <div><Radio :icon-size="12" :name="index" @click.stop /></div>
             </div>
           </template>
-        </div>
+        </RadioGroup>
       </div>
       <div class="cell pay">
-        <div class="button" @click="$router.push('/payment-status')">付款</div>
+        <div class="button" @click="onPayment">付款</div>
       </div>
     </div>
     <div class="back">
-      <div class="button" @click="$router.push('/building')">返回</div>
+      <div class="button" @click="toBack">返回</div>
     </div>
+
+    <form ref="formRef" style="display: none" id="payment_form" action="payment_confirmation" method="post">
+      <input type="hidden" name="access_key" :value="payment_form.access_key" />
+      <input type="hidden" name="profile_id" :value="payment_form.profile_id" />
+      <input type="hidden" name="transaction_uuid" :value="payment_form.transaction_uuid" />
+      <input type="hidden" name="signed_field_names" :value="payment_form.signed_field_names" />
+      <input type="hidden" name="unsigned_field_names" :value="payment_form.unsigned_field_names" />
+      <input type="hidden" name="signed_date_time" :value="payment_form.signed_date_time" />
+      <input type="hidden" name="locale" :value="payment_form.locale" />
+    </form>
   </div>
 </template>
 
@@ -111,7 +192,9 @@ const payMode = [
   align-items: center;
   justify-content: center;
 }
-
+.wrapper {
+  width: 100%;
+}
 .cell {
   border: 1px solid #000;
   &:not(:first-child) {
@@ -169,19 +252,18 @@ const payMode = [
   }
 }
 .mode-box {
-  margin-left: 40px;
+  margin-left: 25px;
   display: flex;
   flex-wrap: wrap;
   & .mode-box-item:nth-child(n) {
-    margin-right: 15px;
+    margin-right: 10px;
   }
 }
 .mode-box-item {
   border: 1px solid #000;
-  width: 80px;
-  height: 40px;
+  width: 90px;
+  height: 75px;
   margin-bottom: 16px;
-  background-color: #bdd4ec;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -201,6 +283,7 @@ const payMode = [
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
   }
 }
 .back {

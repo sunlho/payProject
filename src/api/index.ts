@@ -1,115 +1,49 @@
-import { instance } from "@/utils/request"
+import { request } from "@/utils/request"
 
-export const getUserInfoApi = (params: { uid: string }) => {
-  return instance.request<defs.outsource.SubmitResponse>({
-    url: "/api/outsourcing/audi-etron/userInfo",
-    method: "get",
-    params,
+export const getBuildingInfoApi = (id: string) => {
+  return request<defs.swagger.buildingInfo>({
+    url: "/prod/v1/building-infos",
+    method: "post",
+    params: {
+      blg_id: id,
+    },
   })
 }
 
-export const getPrincipalApi = (params: {
-  targetKey: string
-  actId: string
-  formCode?: string
+export const getBuildingFlatUnitApi = (id: string) => {
+  return request<defs.swagger.flatUnit>({
+    url: "/prod/v1/building-flat-units",
+    method: "post",
+    params: {
+      blg_id: id,
+    },
+  })
+}
+
+export const getBuildingFlatUnitBillApi = (id: string) => {
+  return request<defs.swagger.bill[]>({
+    url: "/prod/v1/building-flat-unit-bills",
+    method: "post",
+    params: {
+      unit_id: id,
+    },
+  })
+}
+
+export const getPaymentMethodApi = () => {
+  return request<{ payment_methods: defs.swagger.paymentMethods[] }>({
+    url: "/prod/v1/payment-service/payment-methods",
+    method: "get",
+  })
+}
+
+export const paymentRequestApi = (data: {
+  provider: string
+  data: { amount: string; locale: string }
 }) => {
-  return instance.request<defs.h5.Submit[]>({
-    url: "/api/h5/v1/form/principal",
-    method: "get",
-    params,
-  })
-}
-
-export const getTestDriveNumApi = () => {
-  return instance.request<number>({
-    url: "/api/outsourcing/audi-etron/testDriveNum",
-    method: "get",
-  })
-}
-
-export const getProvinceApi = () => {
-  return instance.request<defs.outsource.GetProvinceRes[]>({
-    url: "/api/outsourcing/audi-etron/province",
-    method: "get",
-  })
-}
-
-export const getCityApi = (params: { provinceId: string }) => {
-  return instance.request<defs.outsource.GetProvinceRes[]>({
-    url: "/api/outsourcing/audi-etron/city",
-    method: "get",
-    params: params,
-  })
-}
-
-export const getDealerApi = (params: {
-  city: string
-  lat?: string
-  lng?: string
-}) => {
-  return instance.request<defs.outsource.GetDealerRes[]>({
-    url: "/api/outsourcing/audi-etron/dealer",
-    method: "get",
-    params: params,
-  })
-}
-
-export const sendSmsApi = (data: defs.h5.SendFormSmsCode) => {
-  return instance.request<boolean>({
-    url: "/api/h5/v1/form/sendSms",
+  return request<defs.swagger.paymentRes>({
+    url: "/prod/v1/payment-service/request",
     method: "post",
     data,
-  })
-}
-
-export const getSubmitApi = (params: {
-  targetKey: string
-  actId: string
-  formCode?: string
-}) => {
-  return instance.request<any>({
-    url: "/api/h5/v1/form",
-    method: "get",
-    params,
-  })
-}
-
-export const saveApi = (data: defs.h5.SubmitContent) => {
-  return instance.request<boolean>({
-    url: "/api/h5/v1/form/save",
-    method: "post",
-    data,
-  })
-}
-
-export const lotteryApi = (data: defs.h5.LotteryPlay) => {
-  return instance.request<any>({
-    url: "/api/outsourcing/audi-etron/lottery",
-    method: "post",
-    data,
-  })
-}
-
-export const postAddress = (data: defs.h5.PrizeRecordAdress) => {
-  return instance.request<any>({
-    url: "/api/h5/v1/lottery/lotteryLog/adress",
-    method: "post",
-    data,
-  })
-}
-
-export const getLotteryLogApi = (params: { targetKey: string }) => {
-  return instance.request<BaseResponseWithArray<any>>({
-    url: "/api/h5/v1/Lottery/LotteryLog",
-    method: "get",
-    params,
-  })
-}
-
-export const getCacheIdApi = (params: any) => {
-  return instance.request<string>({
-    url: "/api/h5/v1/cacheID",
-    method: "get",
-    params,
   })
 }

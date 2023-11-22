@@ -19,9 +19,7 @@ const successCode = [
 const contentType = "application/json"
 
 interface MAxiosInstance extends AxiosInstance {
-  <T = unknown, R = T, D = any>(
-    config: AxiosRequestConfig<D>,
-  ): T extends BaseResponse ? Promise<R> : Promise<BaseResponseWithData<R>>
+  <T = unknown, R = T, D = any>(config: AxiosRequestConfig<D>): Promise<T>
   <T = unknown, R = T, D = any>(
     url: string,
     config?: AxiosRequestConfig<D>,
@@ -33,33 +31,6 @@ class Axios {
 
   constructor(axios: AxiosStatic, config: AxiosRequestConfig) {
     this.axios = axios.create(config)
-  }
-  get<T = unknown>(config: AxiosRequestConfig) {
-    return this.axios<T>({
-      ...config,
-      method: "GET",
-    })
-  }
-  post<T = unknown>(config: AxiosRequestConfig) {
-    return this.axios<T>({
-      ...config,
-      method: "POST",
-    })
-  }
-  put<T = unknown>(config: AxiosRequestConfig) {
-    return this.axios<T>({
-      ...config,
-      method: "PUT",
-    })
-  }
-  delete<T = unknown>(config: AxiosRequestConfig) {
-    return this.axios<T>({
-      ...config,
-      method: "DELETE",
-    })
-  }
-  request<T = unknown>(config: AxiosRequestConfig) {
-    return this.axios<T>(config)
   }
 }
 
@@ -96,5 +67,5 @@ instance.axios.interceptors.response.use(
     return Promise.reject(error)
   },
 )
-
-export default instance.axios
+export const request = instance.axios
+export default instance

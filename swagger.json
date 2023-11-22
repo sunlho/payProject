@@ -1,0 +1,650 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "I-Smart",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000"
+    }
+  ],
+  "tags": [
+    {
+      "name": "payment_apigw"
+    }
+  ],
+  "paths": {
+    "/prod/v1/building-infos": {
+      "post": {
+        "tags": ["payment_apigw"],
+        "summary": "get building info",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "blg_id": {
+                    "type": "string",
+                    "description": "unique id of the building"
+                  }
+                },
+                "example": {
+                  "blg_id": "0386100"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string",
+                  "example": "application/json"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "$ref": "#/components/schemas/buildingInfo"
+                  }
+                },
+                "example": {
+                  "buildname": "TAK WUN BUILDING",
+                  "buildname_chi": "得運大廈",
+                  "cli_name": "The Incorporated Owners of Tak Wun Building",
+                  "cli_chi_name": "得運大廈業主立案法團",
+                  "cli_addr": "12-16 Pak Kung Street, Kowloon",
+                  "cli_chiadd": "九龍北拱街12-16號 得運大廈"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/prod/v1/building-flat-units": {
+      "post": {
+        "tags": ["payment_apigw"],
+        "summary": "get flat",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "blg_id": {
+                    "type": "string",
+                    "description": "unique id of the building"
+                  }
+                },
+                "example": {
+                  "blg_id": "0386100"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string",
+                  "example": "application/json"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/flatUnit"
+                },
+                "example": {
+                  "building_name": "得運商場",
+                  "address": "xxxxxxxxxxxx",
+                  "flats": [
+                    {
+                      "unit_id": "03861000001",
+                      "floor": "G",
+                      "unit": "01"
+                    },
+                    {
+                      "unit_id": "03861000002",
+                      "floor": "G",
+                      "unit": "02"
+                    },
+                    {
+                      "unit_id": "03861000006",
+                      "floor": "G",
+                      "unit": "06"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/prod/v1/building-flat-unit-bills": {
+      "post": {
+        "tags": ["payment_apigw"],
+        "summary": "get up paid bill",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "unit_id": {
+                    "type": "string",
+                    "description": "unique id for a unit/apartment"
+                  }
+                },
+                "example": {
+                  "unit_id": "03861000311"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string",
+                  "example": "application/json"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/bill"
+                  }
+                },
+                "example": [
+                  {
+                    "flat_code": "03861000311",
+                    "bill_type": "管理費",
+                    "trs_to": "2023/09",
+                    "bill_dt": "2023-09-01",
+                    "amount": "859.00",
+                    "bill_no": "0386100004716",
+                    "status": "PENDING",
+                    "remark": ""
+                  },
+                  {
+                    "flat_code": "03861000311",
+                    "bill_type": "管理費",
+                    "trs_to": "2023/10",
+                    "bill_dt": "2023-10-01",
+                    "amount": "859.00",
+                    "bill_no": "0386100004889",
+                    "status": "READY",
+                    "remark": ""
+                  },
+                  {
+                    "flat_code": "03861000311",
+                    "bill_type": "管理費",
+                    "trs_to": "2023/11",
+                    "bill_dt": "2023-11-01",
+                    "amount": "859.00",
+                    "bill_no": "0386100005062",
+                    "status": "READY",
+                    "remark": ""
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/prod/v1/payment-service/request": {
+      "post": {
+        "tags": ["payment_apigw"],
+        "summary": "handle-payment",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "provider": {
+                    "type": "string",
+                    "description": "支付服務提供商"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "amount": {
+                        "type": "string",
+                        "description": "money in string, 2 decimal places"
+                      },
+                      "locale": {
+                        "type": "string",
+                        "description": "語言, 支付服務顯示語言"
+                      }
+                    }
+                  }
+                }
+              },
+              "example": {
+                "provider": "xxxxxxx",
+                "data": {
+                  "amount": "100.00",
+                  "locale": "en"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string",
+                  "example": "application/json"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/paymentRes"
+                },
+                "example": {
+                  "unsigned_field_names": "",
+                  "amount": "100.00",
+                  "profile_id": "c69919e1-3e24-4d3f-ac06-5f6f34fb6f90",
+                  "access_key": "8bcefd2d-d983-46eb-9d36-f2aa399560df",
+                  "currency": "HKD",
+                  "transaction_uuid": "ce684e0e-a5a9-40a1-bbb6-c883cf5aec26",
+                  "signed_field_names": "access_key,profile_id,transaction_uuid,signed_field_names,unsigned_field_names,signed_date_time,locale,transaction_type,reference_number,amount,currency",
+                  "locale": "en",
+                  "transaction_type": "authorization",
+                  "reference_number": "pay_id_39bec922-3103-4587-99d6-55cde8b47d19",
+                  "signed_date_time": "2023-11-14T15:54:15Z",
+                  "signature": "DSfjs3//pZKNkSqvUvCWhsAaaniqaUAjS/fKd82gK3s="
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Not Found",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string",
+                  "example": "application/json"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "timestamp": "2023-11-16T15:24:04.733997Z",
+                  "errors": [
+                    {
+                      "details": "Bad Request.",
+                      "field": "aaa",
+                      "code": "bad_request"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string",
+                  "example": "application/json"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "timestamp": "2023-11-16T15:24:04.733997Z",
+                  "errors": [
+                    {
+                      "details": "Not found.",
+                      "field": "aaa",
+                      "code": "not_found"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/prod/v1/payment-service/payment-methods": {
+      "get": {
+        "tags": ["payment_apigw"],
+        "summary": "get payment method",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string",
+                  "example": "application/json"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "payment_methods": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/paymentMethods"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "payment_methods": [
+                    {
+                      "method": "fps",
+                      "name_chi": "轉數快",
+                      "name_en": "FPS",
+                      "service_charge": "0.00"
+                    },
+                    {
+                      "method": "credit_card",
+                      "name_chi": "信用卡",
+                      "name_en": "Credit Card",
+                      "service_charge": "0.027"
+                    },
+                    {
+                      "method": "wechat_alipay",
+                      "name_chi": "微信/支付寶",
+                      "name_en": "WeChat/AliPay",
+                      "service_charge": "0.01"
+                    },
+                    {
+                      "method": "transfer",
+                      "name_chi": "銀行轉帳",
+                      "name_en": "Bank Transfer",
+                      "service_charge": "0.00"
+                    },
+                    {
+                      "method": "cheque",
+                      "name_chi": "支票",
+                      "name_en": "Cheque",
+                      "service_charge": "0.00"
+                    },
+                    {
+                      "method": "cash",
+                      "name_chi": "現金",
+                      "name_en": "Cheque",
+                      "service_charge": "0.00"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/prod/v1/payment-service/payment-status": {
+      "get": {
+        "tags": ["payment_apigw"],
+        "summary": "check payment status",
+        "parameters": [
+          {
+            "name": "payment_id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "example": "xxxxxxxxxx"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string",
+                  "example": "application/json"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "付款狀態"
+                    }
+                  }
+                },
+                "example": {
+                  "status": "PENDING"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "flats": {
+        "type": "object",
+        "description": "大厦的單位",
+        "properties": {
+          "unit_id": {
+            "type": "string",
+            "description": "unique id for a unit/apartment"
+          },
+          "floor": {
+            "type": "string",
+            "description": "樓層"
+          },
+          "unit": {
+            "type": "string",
+            "description": "房號"
+          }
+        }
+      },
+      "buildingInfo": {
+        "type": "object",
+        "properties": {
+          "buildname": {
+            "type": "string",
+            "description": "building name in english"
+          },
+          "buildname_chi": {
+            "type": "string",
+            "description": "building name in chinese"
+          },
+          "cli_name": {
+            "type": "string",
+            "description": "法團英文名稱"
+          },
+          "cli_chi_name": {
+            "type": "string",
+            "description": "法團中文名稱"
+          },
+          "cli_addr": {
+            "type": "string",
+            "description": "building address in english"
+          },
+          "cli_chiadd": {
+            "type": "string",
+            "description": "building address in chinese"
+          }
+        }
+      },
+      "flatUnit": {
+        "type": "object",
+        "properties": {
+          "building_name": {
+            "type": "string",
+            "description": "building name in chinese"
+          },
+          "address": {
+            "type": "string",
+            "description": "address name in chinese"
+          },
+          "flats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/flats"
+            }
+          }
+        }
+      },
+      "bill": {
+        "type": "object",
+        "description": "賬單",
+        "properties": {
+          "flat_code": {
+            "type": "string",
+            "description": "unique id for a unit/apartment"
+          },
+          "bill_type": {
+            "type": "string",
+            "description": "賬單種類"
+          },
+          "trs_to": {
+            "type": "string",
+            "description": "賬單期，某一個時段內應收的賬單款項"
+          },
+          "bill_dt": {
+            "type": "string",
+            "description": "賬單期的第一天"
+          },
+          "amount": {
+            "type": "string",
+            "description": "賬單金額"
+          },
+          "bill_no": {
+            "type": "string",
+            "description": "賬單編號"
+          },
+          "status": {
+            "type": "string",
+            "description": "賬單狀態"
+          },
+          "remark": {
+            "type": "string",
+            "description": "備註"
+          }
+        }
+      },
+      "paymentMethods": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "description": "付款方法"
+          },
+          "name_chi": {
+            "type": "string",
+            "description": "付款方法，中文，顯示於用戶介面"
+          },
+          "name_en": {
+            "type": "string",
+            "description": "付款方法，英文，顯示於用戶介面"
+          },
+          "service_charge": {
+            "type": "string",
+            "description": "服務費"
+          }
+        }
+      },
+      "paymentRes": {
+        "type": "object",
+        "properties": {
+          "unsigned_field_names": {
+            "type": "string",
+            "description": "unsigned_field_names"
+          },
+          "amount": {
+            "type": "string",
+            "description": "money in string, 2 decimal places"
+          },
+          "profile_id": {
+            "type": "string",
+            "description": "profile_id"
+          },
+          "access_key": {
+            "type": "string",
+            "description": "access_key"
+          },
+          "currency": {
+            "type": "string",
+            "description": "貨幣"
+          },
+          "transaction_uuid": {
+            "type": "string",
+            "description": "transaction_uuid"
+          },
+          "signed_field_names": {
+            "type": "string",
+            "description": "signed_field_names"
+          },
+          "locale": {
+            "type": "string",
+            "description": "語言, 支付服務顯示語言"
+          },
+          "transaction_type": {
+            "type": "string",
+            "description": "transaction_type"
+          },
+          "reference_number": {
+            "type": "string",
+            "description": "reference_number"
+          },
+          "signed_date_time": {
+            "type": "string",
+            "description": "signed_date_time"
+          },
+          "signature": {
+            "type": "string",
+            "description": "signature"
+          }
+        }
+      }
+    }
+  }
+}
