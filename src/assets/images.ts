@@ -2,6 +2,8 @@ export const images = {
   aliwechatLogo: "aliwechat_logo.png",
   offlineLogo: "offline_logo.jpeg",
   visamasteraeLogo: "visamasterae_logo.jpg",
+  loading: "loading.gif",
+  success: "success.png",
 }
 
 Object.keys(images).forEach((key) => {

@@ -47,3 +47,13 @@ export const paymentRequestApi = (data: {
     data,
   })
 }
+
+export const getPaymentStatusApi = (payment_id: string) => {
+  return request<string>({
+    url: "/prod/v1/payment-service/payment-status",
+    method: "get",
+    params: {
+      payment_id,
+    },
+  })
+}

@@ -1,12 +1,25 @@
 <script lang="ts" setup>
 import { ref } from "vue"
+import { Image } from "vant"
+import { images } from "@/assets/images"
+import { onMounted } from "vue"
+import { getPaymentStatusApi } from "@/api"
 
 const payStatusMap = {
-  await: "處理中",
+  PENDING: "處理中",
   success: "成功付款",
   // failed: "付款失敗",
 }
-const payStatus = ref<keyof typeof payStatusMap>("await")
+const payStatus = ref<keyof typeof payStatusMap>("PENDING")
+const checkPaymentStatus = async () => {
+  const data = await getPaymentStatusApi("xxxxxxxx")
+  payStatus.value = (data as keyof typeof payStatusMap) || "PENDING"
+}
+onMounted(() => {
+  setTimeout(() => {
+    payStatus.value = "success"
+  }, 2000)
+})
 </script>
 
 <template>
@@ -14,7 +27,7 @@ const payStatus = ref<keyof typeof payStatusMap>("await")
     <div class="wrapper">
       <div class="status">
         <span>{{ payStatusMap[payStatus] }}</span>
-        <div></div>
+        <Image width="20" height="20" :src="payStatus == 'PENDING' ? images.loading : images.success"></Image>
       </div>
       <div class="desc">xxxxxxxx</div>
       <div class="desc">xxxxxxxx</div>
@@ -48,6 +61,8 @@ const payStatus = ref<keyof typeof payStatusMap>("await")
     font-size: 24px;
     font-weight: 600;
     margin-bottom: 25px;
+    display: flex;
+    align-items: center;
   }
   .desc {
     font-size: 20px;
