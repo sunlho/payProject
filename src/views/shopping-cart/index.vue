@@ -2,14 +2,12 @@
 import { getPaymentMethodApi, paymentRequestApi } from "@/api"
 import type { paymentRequestData } from "@/api"
 import { computed, ref, onBeforeMount } from "vue"
-import { Image, showToast } from "vant"
 import { images } from "@/assets/images"
 import { useRoute, useRouter } from "vue-router"
-import { Button, Col, Row, Radio, RadioGroup } from "@nutui/nutui"
+import { Image, Button, Col, Row, Radio, RadioGroup, showToast } from "vant"
 import { useCartStore } from "@/store/module/cart"
 import { groupBy } from "lodash-es"
 import { storeToRefs } from "pinia"
-import { watch } from "vue"
 
 const cartStore = useCartStore()
 const { cartList } = storeToRefs(cartStore)
@@ -168,22 +166,22 @@ const toBack = () => {
       </div>
       <div class="cell mode">
         <div class="title">付款方法</div>
-        <RadioGroup v-model="selectPaymentIndex" text-position="left">
-          <Row type="flex" flex-wrap="wrap">
-            <template v-for="(item, index) in paymentMethods" :key="index">
-              <Col :span="12">
-                <div class="method-box" :class="{ active: selectPaymentIndex == index }" @click="selectPaymentIndex = index">
-                  <div class="justify top">
-                    <Image width="40" height="40" :src="getPaymentMethodImage(item.method)"></Image>
-                    <Radio :label="index" @click.stop />
-                  </div>
-                  <div class="name">
-                    {{ item.name_chi }}
-                  </div>
-                </div>
-              </Col>
-            </template>
-          </Row>
+        <RadioGroup style="flex: 1" v-model="selectPaymentIndex" text-position="left">
+          <!-- <Row type="flex" flex-wrap="wrap"> -->
+          <template v-for="(item, index) in paymentMethods" :key="index">
+            <!-- <Col :span="12"> -->
+            <div class="method-box" :class="{ active: selectPaymentIndex == index }" @click="selectPaymentIndex = index">
+              <div class="justify top">
+                <Image width="40" height="40" :src="getPaymentMethodImage(item.method)"></Image>
+                <Radio :name="index" @click.stop />
+              </div>
+              <div class="name">
+                {{ item.name_chi }}
+              </div>
+            </div>
+            <!-- </Col> -->
+          </template>
+          <!-- </Row> -->
         </RadioGroup>
       </div>
       <div class="cell pay">
@@ -213,7 +211,7 @@ const toBack = () => {
   align-items: center;
   justify-content: center;
 }
-.nut-button {
+.van-button {
   font-weight: 600;
 }
 .wrapper {
@@ -273,8 +271,14 @@ const toBack = () => {
   flex-direction: column;
   padding: 10px;
 }
+.van-radio-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 145px);
+  justify-content: center;
+}
 .method-box {
-  margin: 0 5px;
+  margin: auto;
+  width: 140px;
   background-color: #fff;
   margin-bottom: 10px;
   border-radius: 10px;

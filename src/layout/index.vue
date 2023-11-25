@@ -8,9 +8,7 @@ import Footer from "./components/Footer.vue"
   <div>
     <Header></Header>
     <div class="layout">
-      <div class="main">
-        <RouterView></RouterView>
-      </div>
+      <RouterView></RouterView>
     </div>
     <Footer></Footer>
   </div>
@@ -23,8 +21,6 @@ import Footer from "./components/Footer.vue"
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-}
-.main {
   min-height: calc(100vh - 120px);
 }
 </style>

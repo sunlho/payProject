@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@icon-park/vue-next": "^1.4.2",
-    "@nutui/nutui": "^4.2.2",
     "axios": "^1.6.2",
     "dayjs": "^1.11.10",
     "pinia": "^2.1.7",

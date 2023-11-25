@@ -1,10 +1,9 @@
 <script lang="ts" setup>
 import { onBeforeMount, ref, watch, computed } from "vue"
-import { Picker, PickerConfirmEventParams, Popup, showToast } from "vant"
 import { useRoute, useRouter } from "vue-router"
 import { getBuildingFlatUnitApi, getBuildingFlatUnitBillApi, getBuildingInfoApi } from "@/api"
-import { Cell, CellGroup } from "@nutui/nutui"
-import { DownOne, ShoppingCartAdd, ShoppingCartOne, CheckOne, AddOne } from "@icon-park/vue-next"
+import { Picker, PickerConfirmEventParams, Popup, showToast, Cell, CellGroup } from "vant"
+import { DownOne, ShoppingCartOne, CheckOne, AddOne } from "@icon-park/vue-next"
 import { useCartStore } from "@/store/module/cart"
 import { storeToRefs } from "pinia"
 
@@ -122,21 +121,23 @@ onBeforeMount(async () => {
     </div>
     <CellGroup>
       <Cell title="樓層" @click="showFloor = true" center>
-        <template #icon> </template>
-        <template #link>
-          <div>
-            {{ selectFloor || "選擇樓層" }}
+        <template #value>
+          <div style="display: flex; margin-left: auto">
+            <span>
+              {{ selectFloor || "選擇樓層" }}
+            </span>
+            <DownOne theme="outline" size="24" />
           </div>
-          <DownOne theme="outline" size="24" fill="var(--text-color)" />
         </template>
       </Cell>
       <Cell title="單位" @click="onShowSelectUnit" center>
-        <template #icon> </template>
-        <template #link>
-          <div>
-            {{ selectUnit || "選擇單位" }}
+        <template #value>
+          <div style="display: flex; margin-left: auto">
+            <span>
+              {{ selectUnit || "選擇單位" }}
+            </span>
+            <DownOne theme="outline" size="24" />
           </div>
-          <DownOne theme="outline" size="24" fill="var(--text-color)" />
         </template>
       </Cell>
     </CellGroup>
@@ -181,12 +182,15 @@ onBeforeMount(async () => {
         </Cell>
       </template>
     </div>
-    <div class="cart-icon" @click="onToShoppingCart">
-      <ShoppingCartOne theme="outline" size="25" fill="#0095B2" />
-      <div class="number">
-        {{ cartStore.total }}
+    <div class="cart-wrapper">
+      <div class="cart-icon" @click="onToShoppingCart">
+        <ShoppingCartOne theme="outline" size="25" fill="#0095B2" />
+        <div class="number">
+          {{ cartStore.total }}
+        </div>
       </div>
     </div>
+
     <Popup v-model:show="showFloor" round position="bottom">
       <Picker :model-value="[selectFloor as string]" :columns="buildingFloor" @cancel="showFloor = false" @confirm="onSelectFloor" />
     </Popup>
@@ -199,6 +203,7 @@ onBeforeMount(async () => {
 <style lang="scss" scoped>
 .building {
   padding: 40px 60px;
+  position: relative;
 }
 .address {
   margin-bottom: 25px;
@@ -214,24 +219,32 @@ onBeforeMount(async () => {
   }
 }
 :deep() {
-  .nut-cell-group {
-    .nut-cell-group__wrap {
-      background-color: transparent;
-      box-shadow: unset;
-      border: 1px solid #0095b2;
-      > .nut-cell {
-        border: unset;
-      }
+  .van-cell-group {
+    background: transparent;
+    box-shadow: unset;
+    border: 1px solid #0095b2;
+    border-radius: 6px;
+    overflow: hidden;
+    &::after {
+      content: unset;
+    }
+    > .van-cell {
+      border: unset;
     }
   }
 }
 
-.nut-cell {
-  background: transparent;
-  color: var(--text-color);
+:deep() .van-cell {
+  background-color: transparent;
   box-shadow: unset;
   border: 1px solid #0095b2;
   padding: 8px 12px;
+  border-radius: 6px;
+  .van-cell__value {
+    color: var(--text-color);
+    display: flex;
+    text-align: left;
+  }
   .i-icon {
     margin-left: 5px;
   }
@@ -246,6 +259,7 @@ onBeforeMount(async () => {
   font-size: 14px;
   cursor: pointer;
   background-color: rgba($color: #ffffff, $alpha: 1);
+  margin-bottom: 15px;
   .cell {
     width: 100%;
     .no {
@@ -271,10 +285,16 @@ onBeforeMount(async () => {
     }
   }
 }
+.cart-wrapper {
+  position: absolute;
+  width: 55px;
+  height: 55px;
+  bottom: 40px;
+  right: 20px;
+}
 .cart-icon {
   position: fixed;
   bottom: 40px;
-  right: 15px;
   display: flex;
   align-items: center;
   justify-content: center;

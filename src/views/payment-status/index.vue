@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 import { ref } from "vue"
-import { Image } from "@nutui/nutui"
 import { images } from "@/assets/images"
 import { onMounted } from "vue"
 import { getPaymentStatusApi } from "@/api"
 import { CheckOne } from "@icon-park/vue-next"
-import { Button } from "@nutui/nutui"
+import { Button, Image } from "vant"
 import { useCartStore } from "@/store/module/cart"
 
 const cartStore = useCartStore()

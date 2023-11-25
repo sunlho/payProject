@@ -8,12 +8,10 @@
   --dark-color: #001133;
   --primary-color: #0095b2;
   --text-color: var(--dark-color);
-}
-// 自定义主题
-:root {
-  --nut-white: var(--light-color);
-  --nut-primary-color: var(--primary-color);
-  --nut-button-border-radius: 10px;
+  --van-white: var(--light-color);
+  --van-primary-color: var(--primary-color);
+  --van-button-radius: 10px;
+  --van-button-default-height: 38px;
 }
 
 html,
