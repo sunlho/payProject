@@ -3,7 +3,6 @@ export const images = {
   offlineLogo: "offline_logo.jpeg",
   visamasteraeLogo: "visamasterae_logo.jpg",
   loading: "loading.gif",
-  success: "success.png",
 }
 
 Object.keys(images).forEach((key) => {

@@ -1,5 +1,51 @@
 import { MockMethod } from "vite-plugin-mock"
 
+const flats = [
+  {
+    unit_id: "03861000001",
+    floor: "G",
+    unit: "01",
+  },
+  {
+    unit_id: "03861000002",
+    floor: "G",
+    unit: "02",
+  },
+  {
+    unit_id: "03861000006",
+    floor: "G",
+    unit: "06",
+  },
+  {
+    unit_id: "03861000011",
+    floor: "F",
+    unit: "01",
+  },
+  {
+    unit_id: "03861000012",
+    floor: "F",
+    unit: "02",
+  },
+]
+
+const generateBills = () => {
+  const unitArr = flats.map((item) => item.unit_id)
+  return new Array(33).fill(0).map((_, index) => {
+    return {
+      flat_code: unitArr[Math.floor(Math.random() * unitArr.length)],
+      bill_type: "管理費",
+      trs_to: "2023/09",
+      bill_dt: "2023-09-01",
+      amount: `${Math.floor(Math.random() * 100000) / 100}`,
+      bill_no: `0386100${Math.floor(Math.random() * 999999)}`,
+      status: "PENDING",
+      remark: "",
+    }
+  })
+}
+
+const bills = generateBills()
+
 export default [
   {
     url: "/prod/v1/building-infos",
@@ -22,62 +68,18 @@ export default [
       return {
         building_name: "得運商場",
         address: "xxxxxxxxxxxx",
-        flats: [
-          {
-            unit_id: "03861000001",
-            floor: "G",
-            unit: "01",
-          },
-          {
-            unit_id: "03861000002",
-            floor: "G",
-            unit: "02",
-          },
-          {
-            unit_id: "03861000006",
-            floor: "G",
-            unit: "06",
-          },
-        ],
+        flats: flats,
       }
     },
   },
   {
     url: "/prod/v1/building-flat-unit-bills",
     method: "post",
-    response: () => {
-      return [
-        {
-          flat_code: "03861000311",
-          bill_type: "管理費",
-          trs_to: "2023/09",
-          bill_dt: "2023-09-01",
-          amount: "859.00",
-          bill_no: "0386100004716",
-          status: "PENDING",
-          remark: "",
-        },
-        {
-          flat_code: "03861000311",
-          bill_type: "管理費",
-          trs_to: "2023/10",
-          bill_dt: "2023-10-01",
-          amount: "859.00",
-          bill_no: "0386100004889",
-          status: "READY",
-          remark: "",
-        },
-        {
-          flat_code: "03861000311",
-          bill_type: "管理費",
-          trs_to: "2023/11",
-          bill_dt: "2023-11-01",
-          amount: "859.00",
-          bill_no: "0386100005062",
-          status: "READY",
-          remark: "",
-        },
-      ]
+    response: (item) => {
+      const response = bills.filter((_) => {
+        return _.flat_code === item.body.unit_id
+      })
+      return response
     },
   },
   {

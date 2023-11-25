@@ -1,10 +1,14 @@
 <script lang="ts" setup>
 import { ref } from "vue"
-import { Image } from "vant"
+import { Image } from "@nutui/nutui"
 import { images } from "@/assets/images"
 import { onMounted } from "vue"
 import { getPaymentStatusApi } from "@/api"
+import { CheckOne } from "@icon-park/vue-next"
+import { Button } from "@nutui/nutui"
+import { useCartStore } from "@/store/module/cart"
 
+const cartStore = useCartStore()
 const payStatusMap = {
   PENDING: "處理中",
   success: "成功付款",
@@ -18,6 +22,7 @@ const checkPaymentStatus = async () => {
 onMounted(() => {
   setTimeout(() => {
     payStatus.value = "success"
+    cartStore.clear()
   }, 2000)
 })
 </script>
@@ -25,24 +30,28 @@ onMounted(() => {
 <template>
   <div class="payment-status">
     <div class="wrapper">
+      <div class="loading">
+        <template v-if="payStatus == 'PENDING'">
+          <Image width="45" height="45" :src="images.loading"></Image>
+        </template>
+        <template v-else>
+          <CheckOne theme="filled" size="45" fill="#00b417" />
+        </template>
+      </div>
       <div class="status">
         <span>{{ payStatusMap[payStatus] }}</span>
-        <Image width="20" height="20" :src="payStatus == 'PENDING' ? images.loading : images.success"></Image>
       </div>
       <div class="desc">xxxxxxxx</div>
       <div class="desc">xxxxxxxx</div>
     </div>
-    <div class="back">
-      <div class="button" @click="$router.push('/')">返回首頁</div>
-    </div>
+    <Button v-if="payStatus !== 'PENDING'" type="primary" @click="$router.push('/')"> 返回首頁 </Button>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .payment-status {
   min-height: calc(100vh - 60px);
-  background-color: #fff;
-  padding: 40px 60px;
+  padding: 15px 30px 150px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -50,34 +59,24 @@ onMounted(() => {
 }
 .wrapper {
   width: 100%;
-  border: 1px solid #000;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 280px;
-  padding-bottom: 40px;
+  .loading {
+    margin-bottom: 4px;
+  }
   .status {
     font-size: 24px;
     font-weight: 600;
-    margin-bottom: 25px;
+    margin-bottom: 5px;
     display: flex;
     align-items: center;
   }
   .desc {
-    font-size: 20px;
-    margin-bottom: 10px;
-  }
-}
-.back {
-  margin-top: 50px;
-  display: flex;
-  .button {
-    margin: 0 auto;
-    color: #93a5ff;
     font-size: 18px;
-    font-weight: 600;
-    cursor: pointer;
+    margin-bottom: 2px;
   }
 }
 </style>

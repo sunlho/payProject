@@ -1,11 +1,18 @@
 <script lang="ts" setup>
 import { getPaymentMethodApi, paymentRequestApi } from "@/api"
-import { onBeforeMount, onMounted } from "vue"
-import { computed, ref } from "vue"
-import { Image, Radio, RadioGroup, showToast } from "vant"
+import type { paymentRequestData } from "@/api"
+import { computed, ref, onBeforeMount } from "vue"
+import { Image, showToast } from "vant"
 import { images } from "@/assets/images"
 import { useRoute, useRouter } from "vue-router"
+import { Button, Col, Row, Radio, RadioGroup } from "@nutui/nutui"
+import { useCartStore } from "@/store/module/cart"
+import { groupBy } from "lodash-es"
+import { storeToRefs } from "pinia"
+import { watch } from "vue"
 
+const cartStore = useCartStore()
+const { cartList } = storeToRefs(cartStore)
 const route = useRoute()
 const router = useRouter()
 const formRef = ref<HTMLFormElement>()
@@ -26,50 +33,42 @@ const getPaymentMethod = async () => {
   const data = await getPaymentMethodApi()
   paymentMethods.value = data.payment_methods || []
 }
-
-const payParams = ref<{
-  provider: string
-  data: {
-    amount: string
-    locale: string
-  }
-}>({
+const payLoading = ref(false)
+const payParams = ref<paymentRequestData>({
   provider: "",
   data: {
+    bills: [
+      {
+        bill_no: "",
+      },
+    ],
     amount: "",
     locale: "",
   },
 })
 
+const cartListGroup = computed(() => {
+  return Object.values(groupBy(cartList.value, "unit"))
+    .map((item) => {
+      return {
+        floor: item[0].floor,
+        unit: item[0].unit,
+        bills: item,
+      }
+    })
+    .filter((item) => !!item.unit)
+})
+
 onBeforeMount(async () => {
   await getPaymentMethod()
 })
-const items = [
-  {
-    title: "item",
-    items: [
-      {
-        title: "sub-item",
-        number: 100,
-      },
-      {
-        title: "sub-item",
-        number: 233,
-      },
-      {
-        title: "sub-item",
-        number: 233,
-      },
-    ],
-  },
-]
 
 const total = computed(() => {
-  return items.reduce((acc, cur) => {
+  return cartListGroup.value.reduce((acc, cur) => {
     return (
       acc +
-      cur.items.reduce((acc, cur) => {
-        return acc + cur.number
+      cur.bills.reduce((acc, cur) => {
+        return Math.round((Number(acc) + Number(cur?.amount ?? 0)) * 10000) / 10000
       }, 0)
     )
   }, 0)
@@ -86,11 +85,23 @@ const payment_form = ref<defs.swagger.paymentRes>({
 })
 
 const onPayment = async () => {
+  if (!cartStore.cartList || cartStore.cartList.length <= 0) return showToast({ message: "購物車為空" })
   if (selectPaymentIndex.value === void 0) return showToast({ message: "請選擇付款方式" })
+  payLoading.value = true
+  console.log(cartStore.cartList)
   payParams.value = {
     provider: "xxxxxxx",
     data: {
-      amount: total.value.toString(),
+      bills: cartStore.cartList
+        .map((item) => {
+          return { bill_no: item.bill_no }
+        })
+        .filter((item) => !!item.bill_no) as paymentRequestData["data"]["bills"],
+      amount: cartStore.cartList
+        .reduce((acc, cur) => {
+          return Number(acc) + Number(cur?.amount ?? 0)
+        }, 0)
+        .toString(),
       locale: "en",
     },
   }
@@ -121,21 +132,27 @@ const toBack = () => {
 <template>
   <div class="shopping-cart">
     <div class="wrapper">
-      <div class="cell">
-        <template v-for="v in items">
+      <div class="cell cart">
+        <div class="title justify">
+          <span>購物車</span>
+          <div>
+            <Button type="primary" size="mini" plain @click="cartStore.clear()"> 清空購物車</Button>
+          </div>
+        </div>
+        <template v-for="v in cartListGroup">
           <div class="cell-item">
             <div class="left">
-              <div style="padding-left: 10px">{{ v.title }}</div>
+              <div style="padding-left: 10px">{{ `${v.floor} ${v.unit}` }}</div>
             </div>
             <div class="right"></div>
           </div>
-          <template v-for="n in v.items">
+          <template v-for="n in v.bills">
             <div class="cell-item">
               <div class="left">
-                <div style="padding-left: 20px">{{ n.title }}</div>
+                <div style="padding-left: 20px">{{ `${n.trs_to}${n.bill_type}` }}</div>
               </div>
               <div class="right">
-                {{ n.number }}
+                {{ n.amount }}
               </div>
             </div>
           </template>
@@ -151,25 +168,31 @@ const toBack = () => {
       </div>
       <div class="cell mode">
         <div class="title">付款方法</div>
-        <RadioGroup v-model:model-value="selectPaymentIndex" class="mode-box">
-          <template v-for="(item, index) in paymentMethods">
-            <div class="mode-box-item" @click="selectPaymentIndex = index">
-              <div>
-                <Image width="50" height="50" :src="getPaymentMethodImage(item.method)"></Image>
-              </div>
-              <div><Radio :icon-size="12" :name="index" @click.stop /></div>
-            </div>
-          </template>
+        <RadioGroup v-model="selectPaymentIndex" text-position="left">
+          <Row type="flex" flex-wrap="wrap">
+            <template v-for="(item, index) in paymentMethods" :key="index">
+              <Col :span="12">
+                <div class="method-box" :class="{ active: selectPaymentIndex == index }" @click="selectPaymentIndex = index">
+                  <div class="justify top">
+                    <Image width="40" height="40" :src="getPaymentMethodImage(item.method)"></Image>
+                    <Radio :label="index" @click.stop />
+                  </div>
+                  <div class="name">
+                    {{ item.name_chi }}
+                  </div>
+                </div>
+              </Col>
+            </template>
+          </Row>
         </RadioGroup>
       </div>
       <div class="cell pay">
-        <div class="button" @click="onPayment">付款</div>
+        <Button style="width: 100px" type="primary" :loading="payLoading" @click="onPayment">付款</Button>
       </div>
     </div>
     <div class="back">
-      <div class="button" @click="toBack">返回</div>
+      <Button style="width: 70px" size="small" type="primary" plain @click="toBack">返回</Button>
     </div>
-
     <form ref="formRef" style="display: none" id="payment_form" action="payment_confirmation" method="post">
       <input type="hidden" name="access_key" :value="payment_form.access_key" />
       <input type="hidden" name="profile_id" :value="payment_form.profile_id" />
@@ -184,47 +207,40 @@ const toBack = () => {
 
 <style lang="scss" scoped>
 .shopping-cart {
-  min-height: calc(100vh - 60px);
-  background-color: #fff;
-  padding: 40px 60px;
+  padding: 15px 30px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 }
+.nut-button {
+  font-weight: 600;
+}
 .wrapper {
   width: 100%;
 }
 .cell {
-  border: 1px solid #000;
-  &:not(:first-child) {
-    border-top: none;
-  }
+  padding: 0 15px;
   display: flex;
   flex-direction: column;
+  .title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 15px;
+  }
 }
 
 .cell-item {
   flex: 1;
   display: flex;
   min-height: 20px;
-  &:first-child {
-    .left,
-    .right {
-      padding-top: 15px;
-    }
-  }
-  &:last-child {
-    .left,
-    .right {
-      padding-bottom: 15px;
-    }
-  }
   .left {
     flex: 3;
-    border-right: 1px solid #000;
     display: flex;
     align-items: center;
+    font-size: 16px;
+    padding: 5px 0;
+    border-right: 1px solid #dae2f2;
   }
   .right {
     flex: 1;
@@ -233,11 +249,22 @@ const toBack = () => {
     margin-left: 15px;
   }
 }
+.cell.cart {
+  > .cell-item {
+    border-bottom: 1px solid #dae2f2;
+  }
+}
 
 .total.cell {
   .cell-item {
     .left {
       flex-direction: row-reverse;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .right {
+      font-size: 16px;
+      font-weight: 600;
     }
   }
 }
@@ -245,62 +272,42 @@ const toBack = () => {
   display: flex;
   flex-direction: column;
   padding: 10px;
-  .title {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 20px;
-  }
 }
-.mode-box {
-  margin-left: 25px;
-  display: flex;
-  flex-wrap: wrap;
-  & .mode-box-item:nth-child(n) {
-    margin-right: 10px;
+.method-box {
+  margin: 0 5px;
+  background-color: #fff;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  padding: 8px;
+  overflow: hidden;
+  border: 2px solid #dae2f2;
+  &.active {
+    border: 2px solid var(--primary-color);
   }
-}
-.mode-box-item {
-  border: 1px solid #000;
-  width: 90px;
-  height: 75px;
-  margin-bottom: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
 }
 
 .pay.cell {
   flex-direction: row-reverse;
-  padding: 25px 10px 15px 0;
-  .button {
-    width: 100px;
-    height: 40px;
-    background-color: #ecbdc5;
-    border: 1px solid #000;
-    font-size: 18px;
-    font-weight: 600;
+  padding: 15px 25px 15px 0;
+}
+
+.method-box {
+  .justify {
     display: flex;
     align-items: center;
-    justify-content: center;
-    cursor: pointer;
+    justify-content: space-between;
+  }
+  .top {
+    margin-bottom: 5px;
+    align-items: flex-start;
+  }
+  .name {
+    margin-left: 5px;
+    font-size: 12px;
+    font-weight: 600;
   }
 }
 .back {
-  margin-top: 30px;
-  display: flex;
-  .button {
-    margin: 0 auto;
-    background-color: #bdd4ec;
-    width: 100px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    border: 1px solid #000;
-    overflow: hidden;
-    cursor: pointer;
-  }
+  margin-top: 15px;
 }
 </style>

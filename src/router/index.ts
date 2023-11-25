@@ -36,6 +36,7 @@ const router = createRouter(<RouterOptions>{
 })
 
 router.beforeEach((to, from, next) => {
+  window.document.getElementById("app")?.scrollTo(0, 0)
   next()
 })
 

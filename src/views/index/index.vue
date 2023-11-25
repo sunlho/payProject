@@ -3,7 +3,19 @@ import {} from "vue"
 </script>
 
 <template>
-  <div></div>
+  <div class="wrapper">
+    <div class="title">賬單支付平台</div>
+  </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 15px;
+  .title {
+    font-size: 24px;
+  }
+}
+</style>

@@ -10,8 +10,9 @@ import {} from "vue"
 .footer {
   width: 100%;
   height: 60px;
-  background-color: #bccfda;
-  box-shadow: 0 -1px #ccc;
+  background-color: rgba($color: #0095b2, $alpha: 0.8);
+  color: #f2f6ff;
+  font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;

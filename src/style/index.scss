@@ -3,12 +3,25 @@
   margin: 0;
   padding: 0;
 }
+:root {
+  --light-color: #f2f6ff;
+  --dark-color: #001133;
+  --primary-color: #0095b2;
+  --text-color: var(--dark-color);
+}
+// 自定义主题
+:root {
+  --nut-white: var(--light-color);
+  --nut-primary-color: var(--primary-color);
+  --nut-button-border-radius: 10px;
+}
 
 html,
 body,
 #app {
   font-size: 14px;
   height: 100vh;
+  color: #001133;
 }
 
 body {
@@ -17,6 +30,7 @@ body {
 }
 #app {
   overflow: auto;
+  background: linear-gradient(-2000deg, #0095b2 0%, #79f2d5 53%, #dae2f2 100%);
 }
 
 input {
@@ -25,4 +39,13 @@ input {
 }
 input:disabled {
   background-color: transparent;
+}
+
+.i-icon {
+  display: inline-flex;
+}
+
+.justify {
+  display: flex;
+  justify-content: space-between;
 }

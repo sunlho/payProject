@@ -4,7 +4,7 @@ export const getBuildingInfoApi = (id: string) => {
   return request<defs.swagger.buildingInfo>({
     url: "/prod/v1/building-infos",
     method: "post",
-    params: {
+    data: {
       blg_id: id,
     },
   })
@@ -14,7 +14,7 @@ export const getBuildingFlatUnitApi = (id: string) => {
   return request<defs.swagger.flatUnit>({
     url: "/prod/v1/building-flat-units",
     method: "post",
-    params: {
+    data: {
       blg_id: id,
     },
   })
@@ -24,7 +24,7 @@ export const getBuildingFlatUnitBillApi = (id: string) => {
   return request<defs.swagger.bill[]>({
     url: "/prod/v1/building-flat-unit-bills",
     method: "post",
-    params: {
+    data: {
       unit_id: id,
     },
   })
@@ -37,10 +37,17 @@ export const getPaymentMethodApi = () => {
   })
 }
 
-export const paymentRequestApi = (data: {
+export type paymentRequestData = {
   provider: string
-  data: { amount: string; locale: string }
-}) => {
+  data: {
+    bills: {
+      bill_no: string
+    }[]
+    amount: string
+    locale: string
+  }
+}
+export const paymentRequestApi = (data: paymentRequestData) => {
   return request<defs.swagger.paymentRes>({
     url: "/prod/v1/payment-service/request",
     method: "post",

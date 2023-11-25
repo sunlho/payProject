@@ -1,11 +1,15 @@
 <script lang="ts" setup>
-import { onBeforeMount, ref } from "vue"
+import { onBeforeMount, ref, watch, computed } from "vue"
 import { Picker, PickerConfirmEventParams, Popup, showToast } from "vant"
 import { useRoute, useRouter } from "vue-router"
-import { watch } from "vue"
 import { getBuildingFlatUnitApi, getBuildingFlatUnitBillApi, getBuildingInfoApi } from "@/api"
-import { computed } from "vue"
+import { Cell, CellGroup } from "@nutui/nutui"
+import { DownOne, ShoppingCartAdd, ShoppingCartOne, CheckOne, AddOne } from "@icon-park/vue-next"
+import { useCartStore } from "@/store/module/cart"
+import { storeToRefs } from "pinia"
 
+const cartStore = useCartStore()
+const { cartList } = storeToRefs(cartStore)
 const showFloor = ref(false)
 const showUnit = ref(false)
 const route = useRoute()
@@ -22,6 +26,8 @@ const buildingFlatUnit = ref<defs.swagger.flats[]>([])
 const selectFloor = ref<string>()
 const onSelectFloor = (value: PickerConfirmEventParams) => {
   selectFloor.value = value.selectedValues[0] as string
+  selectUnitId.value = ""
+  selectUnit.value = ""
   showFloor.value = false
 }
 const buildingUnit = computed(() => {
@@ -44,7 +50,12 @@ const onSelectUnit = (value: PickerConfirmEventParams) => {
   selectUnitId.value = value.selectedOptions[0]?.value as string
   selectUnit.value = value.selectedOptions[0]?.text as string
   showUnit.value = false
-  route.query.unitId = selectUnitId.value
+  router.replace({
+    query: {
+      ...route.query,
+      unitId: selectUnitId.value,
+    },
+  })
 }
 
 const getBuildingFlatUnit = async () => {
@@ -80,11 +91,14 @@ watch(
   (val) => {
     if (val) {
       getBuildingFlatUnitBill(val)
+    } else {
+      unitBillList.value = []
     }
   },
 )
 
 const onToShoppingCart = () => {
+  if (cartStore.total <= 0) return showToast({ message: "請先選擇賬單" })
   router.push({
     name: "ShoppingCart",
     query: {
@@ -106,29 +120,72 @@ onBeforeMount(async () => {
       <div>{{ buildingInfo.buildname_chi }}</div>
       <div>{{ buildingInfo.cli_chiadd }}</div>
     </div>
-    <div class="select" @click="showFloor = true">
-      <div>{{ selectFloor || "樓層" }}</div>
-      <div class="triangle"></div>
-    </div>
-    <div class="select" @click="onShowSelectUnit">
-      <div>{{ selectUnit || "單位" }}</div>
-      <div class="triangle"></div>
-    </div>
+    <CellGroup>
+      <Cell title="樓層" @click="showFloor = true" center>
+        <template #icon> </template>
+        <template #link>
+          <div>
+            {{ selectFloor || "選擇樓層" }}
+          </div>
+          <DownOne theme="outline" size="24" fill="var(--text-color)" />
+        </template>
+      </Cell>
+      <Cell title="單位" @click="onShowSelectUnit" center>
+        <template #icon> </template>
+        <template #link>
+          <div>
+            {{ selectUnit || "選擇單位" }}
+          </div>
+          <DownOne theme="outline" size="24" fill="var(--text-color)" />
+        </template>
+      </Cell>
+    </CellGroup>
+
     <div class="bill">
       <template v-for="item in unitBillList">
-        <div class="bill-cell" @click="onToShoppingCart">
-          <div>{{ item.bill_no }}</div>
-          <div>{{ item.bill_type }}</div>
-          <div class="justify">
-            <div>{{ selectUnit }}</div>
-            <div>{{ item.bill_dt }}</div>
+        <Cell class="bill-cell">
+          <div class="cell">
+            <div class="justify">
+              <div class="no">{{ item.bill_no }}</div>
+              <div class="">
+                <template v-if="cartList.findIndex((_) => _.bill_no == item.bill_no) < 0">
+                  <AddOne
+                    theme="outline"
+                    size="20"
+                    fill="#001133"
+                    @click="
+                      cartStore.add({
+                        floor: selectFloor,
+                        unitId: selectUnitId,
+                        unit: selectUnit,
+                        ...item,
+                      })
+                    "
+                  />
+                </template>
+                <template v-else>
+                  <CheckOne theme="multi-color" size="20" :fill="['#333', '#0095B2', '#FFF', '#43CCF8']" @click="cartStore.noRemove(item.bill_no)" />
+                </template>
+              </div>
+            </div>
+            <div class="type">{{ item.bill_type }}</div>
+            <div class="justify">
+              <div class="unit">{{ selectUnit }}</div>
+              <div class="date">{{ item.bill_dt }}</div>
+            </div>
+            <div class="justify">
+              <div class="status">{{ item.status }}</div>
+              <div class="money">{{ item.amount }}</div>
+            </div>
           </div>
-          <div class="justify">
-            <div>{{ item.status }}</div>
-            <div>{{ item.amount }}</div>
-          </div>
-        </div>
+        </Cell>
       </template>
+    </div>
+    <div class="cart-icon" @click="onToShoppingCart">
+      <ShoppingCartOne theme="outline" size="25" fill="#0095B2" />
+      <div class="number">
+        {{ cartStore.total }}
+      </div>
     </div>
     <Popup v-model:show="showFloor" round position="bottom">
       <Picker :model-value="[selectFloor as string]" :columns="buildingFloor" @cancel="showFloor = false" @confirm="onSelectFloor" />
@@ -141,55 +198,108 @@ onBeforeMount(async () => {
 
 <style lang="scss" scoped>
 .building {
-  min-height: calc(100vh - 60px);
-  background-color: #fff;
   padding: 40px 60px;
 }
 .address {
   margin-bottom: 25px;
-}
-.select {
-  height: 50px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-  background-color: #bdd4ec;
-  padding: 0 10px;
-}
-.triangle {
-  width: 0;
-  height: 0;
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-top: 10px solid #000;
-  position: relative;
-  &::after {
-    content: " ";
-    position: absolute;
-    top: -8px;
-    left: -5px;
-    z-index: 10;
-    width: 0;
-    height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 5px solid #bdd4ec;
+  color: var(--text-color);
+  font-weight: 600;
+  :first-child {
+    font-size: 20px;
+    margin-bottom: 5px;
+  }
+  :last-child {
+    font-size: 13px;
+    opacity: 0.8;
   }
 }
+:deep() {
+  .nut-cell-group {
+    .nut-cell-group__wrap {
+      background-color: transparent;
+      box-shadow: unset;
+      border: 1px solid #0095b2;
+      > .nut-cell {
+        border: unset;
+      }
+    }
+  }
+}
+
+.nut-cell {
+  background: transparent;
+  color: var(--text-color);
+  box-shadow: unset;
+  border: 1px solid #0095b2;
+  padding: 8px 12px;
+  .i-icon {
+    margin-left: 5px;
+  }
+}
+
 .bill {
-  margin-top: 25px;
+  margin-top: 15px;
 }
 .bill-cell {
+  color: var(--text-color);
   padding: 15px;
-  border: 1px solid #000;
+  font-size: 14px;
   cursor: pointer;
-  &:not(:first-child) {
-    border-top: none;
+  background-color: rgba($color: #ffffff, $alpha: 1);
+  .cell {
+    width: 100%;
+    .no {
+      font-size: 12px;
+      font-weight: 600;
+      opacity: 0.6;
+    }
+    .type {
+      font-size: 16px;
+      margin-bottom: 3px;
+    }
+    .unit {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+    .date {
+      opacity: 0.8;
+    }
+
+    .money {
+      font-size: 16px;
+      font-weight: 600;
+    }
   }
 }
-.justify {
+.cart-icon {
+  position: fixed;
+  bottom: 40px;
+  right: 15px;
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: center;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background-color: #fff;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 600;
+  box-shadow: 0px 0px 10px 0px rgba($color: #000000, $alpha: 0.2);
+  > .number {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 18px;
+    padding: 2px 5px;
+    border-radius: 100px;
+    background-color: #0095b2;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 </style>
