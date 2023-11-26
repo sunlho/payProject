@@ -44,9 +44,14 @@ const payParams = ref<paymentRequestData>({
     locale: "",
   },
 })
+console.log(cartList)
 
 const cartListGroup = computed(() => {
-  return Object.values(groupBy(cartList.value, "unit"))
+  return Object.values(
+    groupBy(cartList.value, (e) => {
+      return `${e.floor}-${e.unit}`
+    }),
+  )
     .map((item) => {
       return {
         floor: item[0].floor,
@@ -94,7 +99,6 @@ const onPayment = async () => {
   if (!cartStore.cartList || cartStore.cartList.length <= 0) return showToast({ message: "購物車為空" })
   if (selectPaymentIndex.value === void 0) return showToast({ message: "請選擇付款方式" })
   payLoading.value = true
-  console.log(cartStore.cartList)
   payParams.value = {
     provider: "xxxxxxx",
     data: {
@@ -248,7 +252,7 @@ const toBack = () => {
   display: flex;
   min-height: 20px;
   .left {
-    flex: 3;
+    flex: 5;
     display: flex;
     align-items: center;
     font-size: 16px;
@@ -256,7 +260,7 @@ const toBack = () => {
     border-right: 1px solid #dae2f2;
   }
   .right {
-    flex: 1;
+    flex: 2;
     display: flex;
     align-items: center;
     margin-left: 15px;
