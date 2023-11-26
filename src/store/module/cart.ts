@@ -22,10 +22,10 @@ export const useCartStore = defineStore("cart", {
     add(item: CardListItem) {
       this.cartList.push(item)
     },
-    indexRemove(index: number) {
+    removeIndex(index: number) {
       this.cartList.splice(index, 1)
     },
-    noRemove(bill_no?: string) {
+    removeNo(bill_no?: string) {
       this.cartList = this.cartList.filter((item) => item.bill_no != bill_no)
     },
     clear() {

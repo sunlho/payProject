@@ -2,7 +2,7 @@
 import { onBeforeMount, ref, watch, computed } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import { getBuildingFlatUnitApi, getBuildingFlatUnitBillApi, getBuildingInfoApi } from "@/api"
-import { Picker, PickerConfirmEventParams, Popup, showToast, Cell, CellGroup } from "vant"
+import { Picker, PickerConfirmEventParams, Popup, showToast, Cell, CellGroup, Radio, Checkbox } from "vant"
 import { DownOne, ShoppingCartOne, CheckOne, AddOne } from "@icon-park/vue-next"
 import { useCartStore } from "@/store/module/cart"
 import { storeToRefs } from "pinia"
@@ -107,6 +107,24 @@ const onToShoppingCart = () => {
   })
 }
 
+const isSelect = computed(() => {
+  return (bill_no?: string) => cartList.value.findIndex((_) => _.bill_no == bill_no) > -1
+})
+
+const handleOnClickBill = (item: defs.swagger.bill) => {
+  const index = cartList.value.findIndex((_) => _.bill_no == item.bill_no)
+  if (index > -1) {
+    cartStore.removeIndex(index)
+    return
+  }
+  cartStore.add({
+    floor: selectFloor.value,
+    unitId: selectUnitId.value,
+    unit: selectUnit.value,
+    ...item,
+  })
+}
+
 onBeforeMount(async () => {
   await getBuildingInfo()
   await getBuildingFlatUnit()
@@ -144,30 +162,17 @@ onBeforeMount(async () => {
 
     <div class="bill">
       <template v-for="item in unitBillList">
-        <Cell class="bill-cell">
+        <Cell
+          class="bill-cell"
+          :class="{
+            active: isSelect(item.bill_no),
+          }"
+          @click="handleOnClickBill(item)"
+        >
           <div class="cell">
             <div class="justify">
               <div class="no">{{ item.bill_no }}</div>
-              <div class="">
-                <template v-if="cartList.findIndex((_) => _.bill_no == item.bill_no) < 0">
-                  <AddOne
-                    theme="outline"
-                    size="20"
-                    fill="#001133"
-                    @click="
-                      cartStore.add({
-                        floor: selectFloor,
-                        unitId: selectUnitId,
-                        unit: selectUnit,
-                        ...item,
-                      })
-                    "
-                  />
-                </template>
-                <template v-else>
-                  <CheckOne theme="multi-color" size="20" :fill="['#333', '#0095B2', '#FFF', '#43CCF8']" @click="cartStore.noRemove(item.bill_no)" />
-                </template>
-              </div>
+              <Checkbox :model-value="isSelect(item.bill_no)"></Checkbox>
             </div>
             <div class="type">{{ item.bill_type }}</div>
             <div class="justify">
@@ -220,7 +225,8 @@ onBeforeMount(async () => {
 }
 :deep() {
   .van-cell-group {
-    background: transparent;
+    // background: transparent;
+    background: var(--light-color);
     box-shadow: unset;
     border: 1px solid #0095b2;
     border-radius: 6px;
@@ -230,6 +236,9 @@ onBeforeMount(async () => {
     }
     > .van-cell {
       border: unset;
+    }
+    .van-cell:first-child::after {
+      border-color: #0095b2;
     }
   }
 }
@@ -252,6 +261,12 @@ onBeforeMount(async () => {
 
 .bill {
   margin-top: 15px;
+}
+.bill-cell.van-cell {
+  border: 2px solid #dae2f2;
+  &.active {
+    border: 2px solid var(--primary-color);
+  }
 }
 .bill-cell {
   color: var(--text-color);

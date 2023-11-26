@@ -61,15 +61,19 @@ onBeforeMount(async () => {
   await getPaymentMethod()
 })
 
+const DigitalAccuracy = 10000
 const total = computed(() => {
   return cartListGroup.value.reduce((acc, cur) => {
     return (
-      acc +
-      cur.bills.reduce((acc, cur) => {
-        return Math.round((Number(acc) + Number(cur?.amount ?? 0)) * 10000) / 10000
-      }, 0)
+      Math.round(
+        Number(acc) * DigitalAccuracy +
+          cur.bills.reduce((acc, cur) => {
+            return Math.round(Number(acc) * DigitalAccuracy + Number(cur?.amount ?? 0) * DigitalAccuracy) / DigitalAccuracy
+          }, 0) *
+            DigitalAccuracy,
+      ) / DigitalAccuracy
     )
-  }, 0)
+  }, Number(serviceCharge.value))
 })
 
 const payment_form = ref<defs.swagger.paymentRes>({
@@ -80,6 +84,10 @@ const payment_form = ref<defs.swagger.paymentRes>({
   unsigned_field_names: "",
   signed_date_time: "",
   locale: "",
+})
+
+const serviceCharge = computed(() => {
+  return paymentMethods.value?.[selectPaymentIndex.value ?? 0]?.service_charge ?? "0.00"
 })
 
 const onPayment = async () => {
@@ -156,10 +164,21 @@ const toBack = () => {
           </template>
         </template>
       </div>
+      <div class="cell service-charge">
+        <div class="cell-item">
+          <div class="left">
+            <div style="padding-right: 20px">手續費</div>
+          </div>
+          <div class="right">{{ serviceCharge }}</div>
+        </div>
+      </div>
       <div class="cell total">
         <div class="cell-item">
           <div class="left">
-            <div style="padding-right: 20px">Total</div>
+            <div style="padding-right: 20px">
+              Total
+              <span> (HDK) </span>
+            </div>
           </div>
           <div class="right">{{ total }}</div>
         </div>
@@ -167,9 +186,7 @@ const toBack = () => {
       <div class="cell mode">
         <div class="title">付款方法</div>
         <RadioGroup style="flex: 1" v-model="selectPaymentIndex" text-position="left">
-          <!-- <Row type="flex" flex-wrap="wrap"> -->
           <template v-for="(item, index) in paymentMethods" :key="index">
-            <!-- <Col :span="12"> -->
             <div class="method-box" :class="{ active: selectPaymentIndex == index }" @click="selectPaymentIndex = index">
               <div class="justify top">
                 <Image width="40" height="40" :src="getPaymentMethodImage(item.method)"></Image>
@@ -179,9 +196,7 @@ const toBack = () => {
                 {{ item.name_chi }}
               </div>
             </div>
-            <!-- </Col> -->
           </template>
-          <!-- </Row> -->
         </RadioGroup>
       </div>
       <div class="cell pay">
@@ -253,12 +268,24 @@ const toBack = () => {
   }
 }
 
+.service-charge {
+  .cell-item {
+    .left {
+      flex-direction: row-reverse;
+    }
+    border-bottom: 1px solid #dae2f2;
+  }
+}
 .total.cell {
   .cell-item {
     .left {
       flex-direction: row-reverse;
       font-size: 16px;
       font-weight: 600;
+      span {
+        font-size: 12px;
+        font-weight: 600;
+      }
     }
     .right {
       font-size: 16px;
