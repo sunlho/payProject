@@ -37,12 +37,12 @@ const payParams = ref<paymentRequestData>({
   data: {
     bills: [
       {
-        bill_no: "",
-      },
+        bill_no: ""
+      }
     ],
     amount: "",
-    locale: "",
-  },
+    locale: ""
+  }
 })
 console.log(cartList)
 
@@ -50,13 +50,13 @@ const cartListGroup = computed(() => {
   return Object.values(
     groupBy(cartList.value, (e) => {
       return `${e.floor}-${e.unit}`
-    }),
+    })
   )
     .map((item) => {
       return {
         floor: item[0].floor,
         unit: item[0].unit,
-        bills: item,
+        bills: item
       }
     })
     .filter((item) => !!item.unit)
@@ -73,9 +73,11 @@ const total = computed(() => {
       Math.round(
         Number(acc) * DigitalAccuracy +
           cur.bills.reduce((acc, cur) => {
-            return Math.round(Number(acc) * DigitalAccuracy + Number(cur?.amount ?? 0) * DigitalAccuracy) / DigitalAccuracy
+            return (
+              Math.round(Number(acc) * DigitalAccuracy + Number(cur?.amount ?? 0) * DigitalAccuracy) / DigitalAccuracy
+            )
           }, 0) *
-            DigitalAccuracy,
+            DigitalAccuracy
       ) / DigitalAccuracy
     )
   }, Number(serviceCharge.value))
@@ -88,7 +90,7 @@ const payment_form = ref<defs.swagger.paymentRes>({
   signed_field_names: "",
   unsigned_field_names: "",
   signed_date_time: "",
-  locale: "",
+  locale: ""
 })
 
 const serviceCharge = computed(() => {
@@ -112,8 +114,8 @@ const onPayment = async () => {
           return Number(acc) + Number(cur?.amount ?? 0)
         }, 0)
         .toString(),
-      locale: "en",
-    },
+      locale: "en"
+    }
   }
   const result = await paymentRequestApi(payParams.value)
   payment_form.value = result
@@ -121,8 +123,8 @@ const onPayment = async () => {
   router.push({
     name: "PaymentStatus",
     query: {
-      paymentId: "xxxxxxx",
-    },
+      paymentId: "xxxxxxx"
+    }
   })
 }
 
@@ -130,11 +132,11 @@ const toBack = () => {
   router.push({
     name: "Building",
     params: {
-      id: route.query.buildingId as string,
+      id: route.query.buildingId as string
     },
     query: {
-      unitId: route.query.unitId as string,
-    },
+      unitId: route.query.unitId as string
+    }
   })
 }
 </script>
@@ -149,17 +151,19 @@ const toBack = () => {
             <Button type="primary" size="mini" plain @click="cartStore.clear()"> 清空購物車</Button>
           </div>
         </div>
-        <template v-for="v in cartListGroup">
+        <template v-for="v in cartListGroup" :key="v.floor">
           <div class="cell-item">
             <div class="left">
               <div style="padding-left: 10px">{{ `${v.floor} ${v.unit}` }}</div>
             </div>
             <div class="right"></div>
           </div>
-          <template v-for="n in v.bills">
+          <template v-for="n in v.bills" :key="n.bill_no">
             <div class="cell-item">
               <div class="left">
-                <div style="padding-left: 20px">{{ `${n.trs_to}${n.bill_type}` }}</div>
+                <div style="padding-left: 20px">
+                  {{ `${n.trs_to}${n.bill_type}` }}
+                </div>
               </div>
               <div class="right">
                 {{ n.amount }}
@@ -191,7 +195,11 @@ const toBack = () => {
         <div class="title">付款方法</div>
         <RadioGroup style="flex: 1" v-model="selectPaymentIndex" text-position="left">
           <template v-for="(item, index) in paymentMethods" :key="index">
-            <div class="method-box" :class="{ active: selectPaymentIndex == index }" @click="selectPaymentIndex = index">
+            <div
+              class="method-box"
+              :class="{ active: selectPaymentIndex == index }"
+              @click="selectPaymentIndex = index"
+            >
               <div class="justify top">
                 <Image width="40" height="40" :src="getPaymentMethodImage(item.method)"></Image>
                 <Radio :name="index" @click.stop />

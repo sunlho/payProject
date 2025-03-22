@@ -14,18 +14,18 @@ export default defineConfig(({ command, mode }) => {
       viteMockServe({
         mockPath: "mock",
         watchFiles: true,
-        configPath: "mock/index.ts",
-      }),
+        configPath: "mock/index.ts"
+      })
     ],
     server: {
       host: "0.0.0.0",
-      port: 3000,
+      port: 3000
     },
     resolve: {
       alias: [
         { find: "@", replacement: resolve(__dirname, "src/") },
-        { find: "/#", replacement: resolve(__dirname, "types/") },
-      ],
-    },
+        { find: "/#", replacement: resolve(__dirname, "types/") }
+      ]
+    }
   }
 })

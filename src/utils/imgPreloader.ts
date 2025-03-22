@@ -4,7 +4,7 @@ interface ImgsList {
 
 const imgPreloader = (url: string) => {
   return new Promise((resolve, reject) => {
-    let image = new Image()
+    const image = new Image()
     image.src = url
     image.onload = (e) => {
       resolve(true)
@@ -15,22 +15,20 @@ const imgPreloader = (url: string) => {
   })
 }
 
-export const imagesPreloader = async (
-  imgs: ImgsList,
-): Promise<{ status: boolean }> => {
-  let promiseArr: any[] = []
+export const imagesPreloader = async (imgs: ImgsList): Promise<{ status: boolean }> => {
+  const promiseArr: Promise<unknown>[] = []
   Object.keys(imgs).forEach((key) => {
     promiseArr.push(imgPreloader(imgs[key]))
   })
   try {
     await Promise.allSettled(promiseArr)
     return {
-      status: true,
+      status: true
     }
   } catch (err) {
     console.log(err)
     return {
-      status: false,
+      status: false
     }
   }
 }

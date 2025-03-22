@@ -10,13 +10,13 @@ export const useCartStore = defineStore("cart", {
     cartList: CardListItem[]
   } => {
     return {
-      cartList: [],
+      cartList: []
     }
   },
   getters: {
     total(): number {
       return this.cartList.length
-    },
+    }
   },
   actions: {
     add(item: CardListItem) {
@@ -30,8 +30,8 @@ export const useCartStore = defineStore("cart", {
     },
     clear() {
       this.cartList = []
-    },
-  },
+    }
+  }
   // 本地化存储
   // persist: true,
 })

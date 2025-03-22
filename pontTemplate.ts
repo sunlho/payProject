@@ -10,7 +10,7 @@ export default class MyGenerator extends CodeGenerator {
 
     base.properties = base.properties.map((prop) => {
       return new Property({
-        ...prop,
+        ...prop
       })
     })
 

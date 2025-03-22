@@ -1,40 +1,27 @@
 import { request } from "@/utils/request"
 
 export const getBuildingInfoApi = (id: string) => {
-  return request<defs.swagger.buildingInfo>({
-    url: "/prod/v1/building-infos",
-    method: "post",
+  return request.get<defs.swagger.buildingInfo>("/prod/v1/building-infos", {
     data: {
-      blg_id: id,
-    },
+      blg_id: id
+    }
   })
 }
 
 export const getBuildingFlatUnitApi = (id: string) => {
-  return request<defs.swagger.flatUnit>({
-    url: "/prod/v1/building-flat-units",
-    method: "post",
-    data: {
-      blg_id: id,
-    },
+  return request.post<defs.swagger.flatUnit>("/prod/v1/building-flat-units", {
+    blg_id: id
   })
 }
 
 export const getBuildingFlatUnitBillApi = (id: string) => {
-  return request<defs.swagger.bill[]>({
-    url: "/prod/v1/building-flat-unit-bills",
-    method: "post",
-    data: {
-      unit_id: id,
-    },
+  return request.post<defs.swagger.bill[]>("/prod/v1/building-flat-unit-bills", {
+    unit_id: id
   })
 }
 
 export const getPaymentMethodApi = () => {
-  return request<{ payment_methods: defs.swagger.paymentMethods[] }>({
-    url: "/prod/v1/payment-service/payment-methods",
-    method: "get",
-  })
+  return request.get<{ payment_methods: defs.swagger.paymentMethods[] }>("/prod/v1/payment-service/payment-methods")
 }
 
 export type paymentRequestData = {
@@ -48,19 +35,13 @@ export type paymentRequestData = {
   }
 }
 export const paymentRequestApi = (data: paymentRequestData) => {
-  return request<defs.swagger.paymentRes>({
-    url: "/prod/v1/payment-service/request",
-    method: "post",
-    data,
-  })
+  return request.post<defs.swagger.paymentRes>("/prod/v1/payment-service/request", data)
 }
 
 export const getPaymentStatusApi = (payment_id: string) => {
-  return request<string>({
-    url: "/prod/v1/payment-service/payment-status",
-    method: "get",
+  return request.get<string>("/prod/v1/payment-service/payment-status", {
     params: {
-      payment_id,
-    },
+      payment_id
+    }
   })
 }

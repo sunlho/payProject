@@ -4,28 +4,28 @@ const flats = [
   {
     unit_id: "03861000001",
     floor: "G",
-    unit: "01",
+    unit: "01"
   },
   {
     unit_id: "03861000002",
     floor: "G",
-    unit: "02",
+    unit: "02"
   },
   {
     unit_id: "03861000006",
     floor: "G",
-    unit: "06",
+    unit: "06"
   },
   {
     unit_id: "03861000011",
     floor: "F",
-    unit: "01",
+    unit: "01"
   },
   {
     unit_id: "03861000012",
     floor: "F",
-    unit: "02",
-  },
+    unit: "02"
+  }
 ]
 
 const generateBills = () => {
@@ -39,7 +39,7 @@ const generateBills = () => {
       amount: `${Math.floor(Math.random() * 100000) / 100}`,
       bill_no: `0386100${Math.floor(Math.random() * 999999)}`,
       status: "PENDING",
-      remark: "",
+      remark: ""
     }
   })
 }
@@ -57,9 +57,9 @@ export default [
         cli_name: "The Incorporated Owners of Tak Wun Building",
         cli_chi_name: "得運大廈業主立案法團",
         cli_addr: "12-16 Pak Kung Street, Kowloon",
-        cli_chiadd: "九龍北拱街12-16號 得運大廈",
+        cli_chiadd: "九龍北拱街12-16號 得運大廈"
       }
-    },
+    }
   },
   {
     url: "/prod/v1/building-flat-units",
@@ -68,9 +68,9 @@ export default [
       return {
         building_name: "得運商場",
         address: "xxxxxxxxxxxx",
-        flats: flats,
+        flats: flats
       }
-    },
+    }
   },
   {
     url: "/prod/v1/building-flat-unit-bills",
@@ -80,7 +80,7 @@ export default [
         return _.flat_code === item.body.unit_id
       })
       return response
-    },
+    }
   },
   {
     url: "/prod/v1/payment-service/payment-methods",
@@ -92,41 +92,41 @@ export default [
             method: "fps",
             name_chi: "轉數快",
             name_en: "FPS",
-            service_charge: "0.00",
+            service_charge: "0.00"
           },
           {
             method: "credit_card",
             name_chi: "信用卡",
             name_en: "Credit Card",
-            service_charge: "0.027",
+            service_charge: "0.027"
           },
           {
             method: "wechat_alipay",
             name_chi: "微信/支付寶",
             name_en: "WeChat/AliPay",
-            service_charge: "0.01",
+            service_charge: "0.01"
           },
           {
             method: "transfer",
             name_chi: "銀行轉帳",
             name_en: "Bank Transfer",
-            service_charge: "0.00",
+            service_charge: "0.00"
           },
           {
             method: "cheque",
             name_chi: "支票",
             name_en: "Cheque",
-            service_charge: "0.00",
+            service_charge: "0.00"
           },
           {
             method: "cash",
             name_chi: "現金",
             name_en: "Cheque",
-            service_charge: "0.00",
-          },
-        ],
+            service_charge: "0.00"
+          }
+        ]
       }
-    },
+    }
   },
   {
     url: "/prod/v1/payment-service/request",
@@ -145,21 +145,21 @@ export default [
         transaction_type: "authorization",
         reference_number: "pay_id_39bec922-3103-4587-99d6-55cde8b47d19",
         signed_date_time: "2023-11-14T15:54:15Z",
-        signature: "DSfjs3//pZKNkSqvUvCWhsAaaniqaUAjS/fKd82gK3s=",
+        signature: "DSfjs3//pZKNkSqvUvCWhsAaaniqaUAjS/fKd82gK3s="
       }
-    },
+    }
   },
   {
     url: "/prod/v1/payment-service/payment-status",
     method: "get",
     response: () => {
       return {
-        status: "PENDING",
+        status: "PENDING"
       }
-    },
+    }
   },
   {
     url: "/payment_confirmation",
-    method: "post",
-  },
+    method: "post"
+  }
 ] as MockMethod[]

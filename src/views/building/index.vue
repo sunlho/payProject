@@ -35,7 +35,7 @@ const buildingUnit = computed(() => {
     .map((item) => {
       return {
         value: item.unit_id,
-        text: item.unit,
+        text: item.unit
       }
     })
 })
@@ -52,8 +52,8 @@ const onSelectUnit = (value: PickerConfirmEventParams) => {
   router.replace({
     query: {
       ...route.query,
-      unitId: selectUnitId.value,
-    },
+      unitId: selectUnitId.value
+    }
   })
 }
 
@@ -67,7 +67,7 @@ const getBuildingFlatUnit = async () => {
   buildingFloor.value = Array.from(floorMap.keys()).map((item) => {
     return {
       value: item,
-      text: item,
+      text: item
     }
   })
   if (route.query.unitId) {
@@ -93,7 +93,7 @@ watch(
     } else {
       unitBillList.value = []
     }
-  },
+  }
 )
 
 const onToShoppingCart = () => {
@@ -102,8 +102,8 @@ const onToShoppingCart = () => {
     name: "ShoppingCart",
     query: {
       buildingId: buildingId,
-      unitId: selectUnitId.value,
-    },
+      unitId: selectUnitId.value
+    }
   })
 }
 
@@ -121,7 +121,7 @@ const handleOnClickBill = (item: defs.swagger.bill) => {
     floor: selectFloor.value,
     unitId: selectUnitId.value,
     unit: selectUnit.value,
-    ...item,
+    ...item
   })
 }
 
@@ -161,11 +161,11 @@ onBeforeMount(async () => {
     </CellGroup>
 
     <div class="bill">
-      <template v-for="item in unitBillList">
+      <template v-for="item in unitBillList" :key="item.bill_no">
         <Cell
           class="bill-cell"
           :class="{
-            active: isSelect(item.bill_no),
+            active: isSelect(item.bill_no)
           }"
           @click="handleOnClickBill(item)"
         >
@@ -197,10 +197,20 @@ onBeforeMount(async () => {
     </div>
 
     <Popup v-model:show="showFloor" round position="bottom">
-      <Picker :model-value="[selectFloor as string]" :columns="buildingFloor" @cancel="showFloor = false" @confirm="onSelectFloor" />
+      <Picker
+        :model-value="[selectFloor as string]"
+        :columns="buildingFloor"
+        @cancel="showFloor = false"
+        @confirm="onSelectFloor"
+      />
     </Popup>
     <Popup v-model:show="showUnit" round position="bottom">
-      <Picker :model-value="[selectUnitId as string]" :columns="buildingUnit" @cancel="showUnit = false" @confirm="onSelectUnit" />
+      <Picker
+        :model-value="[selectUnitId as string]"
+        :columns="buildingUnit"
+        @cancel="showUnit = false"
+        @confirm="onSelectUnit"
+      />
     </Popup>
   </div>
 </template>

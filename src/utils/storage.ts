@@ -1,5 +1,5 @@
 export const setItem = (key: string, value: string) => {
-  if (typeof value === 'object') {
+  if (typeof value === "object") {
     value = JSON.stringify(value)
   }
   localStorage.setItem(key, value)
@@ -23,11 +23,13 @@ export const clear = () => {
 }
 
 export function getQueryVariable(variable: string) {
-  var query = window.location.search.substring(1);
-  var vars = query.split("&");
+  var query = window.location.search.substring(1)
+  var vars = query.split("&")
   for (var i = 0; i < vars.length; i++) {
-    var pair = vars[i].split("=");
-    if (pair[0] == variable) { return pair[1]; }
+    var pair = vars[i].split("=")
+    if (pair[0] == variable) {
+      return pair[1]
+    }
   }
-  return (false);
+  return false
 }

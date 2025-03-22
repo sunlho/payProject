@@ -9,30 +9,30 @@ const publicRoutes: RouteRecordRaw[] = [
       {
         path: "",
         name: "Index",
-        component: () => import("@/views/index/index.vue"),
+        component: () => import("@/views/index/index.vue")
       },
       {
         path: "building/:id",
         name: "Building",
-        component: () => import("@/views/building/index.vue"),
+        component: () => import("@/views/building/index.vue")
       },
       {
         path: "shopping-cart",
         name: "ShoppingCart",
-        component: () => import("@/views/shopping-cart/index.vue"),
+        component: () => import("@/views/shopping-cart/index.vue")
       },
       {
         path: "payment-status",
         name: "PaymentStatus",
-        component: () => import("@/views/payment-status/index.vue"),
-      },
-    ],
-  },
+        component: () => import("@/views/payment-status/index.vue")
+      }
+    ]
+  }
 ]
 
 const router = createRouter(<RouterOptions>{
   history: createWebHashHistory(),
-  routes: [...publicRoutes],
+  routes: [...publicRoutes]
 })
 
 router.beforeEach((to, from, next) => {

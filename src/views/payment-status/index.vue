@@ -10,7 +10,7 @@ import { useCartStore } from "@/store/module/cart"
 const cartStore = useCartStore()
 const payStatusMap = {
   PENDING: "處理中",
-  success: "成功付款",
+  success: "成功付款"
   // failed: "付款失敗",
 }
 const payStatus = ref<keyof typeof payStatusMap>("PENDING")

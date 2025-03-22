@@ -19,7 +19,7 @@ NProgress.configure({
   showSpinner: false,
   trickleSpeed: 200,
   minimum: 0.3,
-  parent: "body",
+  parent: "body"
 })
 onBeforeMount(async () => {
   NProgress.start()
